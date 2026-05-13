@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker on Windows — D Drive Installation Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --border2: #3d444d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --blue: #58a6ff;
+    --blue-dim: #1f3a5f;
+    --green: #3fb950;
+    --green-dim: #0f3a1a;
+    --orange: #e3b341;
+    --orange-dim: #3a2a0a;
+    --red: #f85149;
+    --red-dim: #3d1515;
+    --purple: #bc8cff;
+    --purple-dim: #2a1a4a;
+    --teal: #39d4aa;
+    --teal-dim: #0a2e24;
+    --step-num: #58a6ff;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Header */
+  .hero {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(88,166,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(57,212,170,0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero-sub {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+  .paths-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .path-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+  }
+  .path-pill .label { color: var(--text3); font-size: 11px; font-family: 'Inter', sans-serif; }
+  .path-pill .val { color: var(--orange); }
+  .path-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+
+  /* TOC */
+  .toc-wrap {
+    padding: 0 60px;
+    margin: 32px 0;
+  }
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 24px;
+  }
+  .toc-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    grid-column: 1 / -1;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+  .toc a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text2);
+    font-size: 13px;
+    padding: 4px 0;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--blue); }
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 20px;
+  }
+
+  /* Main layout */
+  .content { padding: 0 60px 60px; }
+
+  /* Phase headers */
+  .phase {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px 0 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .phase-icon.blue { background: var(--blue-dim); }
+  .phase-icon.green { background: var(--green-dim); }
+  .phase-icon.orange { background: var(--orange-dim); }
+  .phase-icon.purple { background: var(--purple-dim); }
+  .phase-icon.teal { background: var(--teal-dim); }
+  .phase-icon.red { background: var(--red-dim); }
+  .phase-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* Step cards */
+  .step {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 0 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .step::after {
+    content: '';
+    position: absolute;
+    left: 21px;
+    top: 44px;
+    bottom: -20px;
+    width: 1px;
+    background: var(--border);
+  }
+  .step:last-child::after { display: none; }
+  .step-circle {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--step-num);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-body {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .step-header {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .step-inner { padding: 16px 18px; }
+
+  /* Code blocks */
+  .cmd-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .cmd-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .cmd-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .cmd-tag {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .cmd-tag.ps { background: var(--blue-dim); color: var(--blue); }
+  .cmd-tag.cmd { background: var(--orange-dim); color: var(--orange); }
+  .cmd-tag.regedit { background: var(--purple-dim); color: var(--purple); }
+  pre {
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+    color: var(--text);
+    white-space: pre;
+  }
+  .kw { color: var(--purple); }
+  .str { color: var(--green); }
+  .cmt { color: var(--text3); font-style: italic; }
+  .path { color: var(--orange); }
+  .flag { color: var(--teal); }
+  .cmd-txt { color: var(--text); }
+
+  /* Info / Warning / Tip boxes */
+  .box {
+    display: flex;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: var(--radius);
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .box-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .box.info { background: var(--blue-dim); border: 1px solid rgba(88,166,255,0.2); color: #a5c8ff; }
+  .box.warn { background: var(--orange-dim); border: 1px solid rgba(227,179,65,0.2); color: #f0ce7d; }
+  .box.success { background: var(--green-dim); border: 1px solid rgba(63,185,80,0.2); color: #7ee08a; }
+  .box.danger { background: var(--red-dim); border: 1px solid rgba(248,81,73,0.2); color: #faa; }
+  .box strong { font-weight: 600; display: block; margin-bottom: 3px; }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--orange);
+  }
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13.5px;
+    color: var(--text2);
+  }
+  .checklist li::before {
+    content: '□';
+    font-size: 15px;
+    color: var(--border2);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Sub-steps */
+  .sub-steps { list-style: none; counter-reset: sub; }
+  .sub-steps li {
+    counter-increment: sub;
+    display: flex;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text);
+    padding: 6px 0;
+    line-height: 1.6;
+  }
+  .sub-steps li::before {
+    content: counter(sub, lower-alpha) '.';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 18px;
+    padding-top: 3px;
+  }
+
+  /* Summary table */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .summary-table th {
+    text-align: left;
+    padding: 9px 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text3);
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table td:first-child { color: var(--text); font-weight: 500; }
+  .summary-table td code { color: var(--orange); }
+  .badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .badge.req { background: var(--red-dim); color: var(--red); }
+  .badge.opt { background: var(--green-dim); color: var(--green); }
+
+  /* Footer */
+  .guide-footer {
+    margin-top: 48px;
+    padding: 24px 60px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text3);
+  }
+  .guide-footer a { color: var(--blue); text-decoration: none; }
+
+  /* Section anchor spacing */
+  .section-anchor { scroll-margin-top: 16px; }
+
+  @media print {
+    body { background: white; color: black; }
+    .hero { background: #f0f4f8; border-bottom: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🐳 Docker · Windows · Full D: Drive Setup</div>
+  <h1>Install Docker on <span>D:\</span><br>Zero C: Drive Footprint</h1>
+  <p class="hero-sub">Complete step-by-step guide to install Docker Desktop and all its dependencies entirely on your D drive. Programs go to <code style="background:rgba(255,255,255,0.1);color:#e3b341">D:\ProgramFiles\</code> and all Docker images, containers, and volumes go to <code style="background:rgba(255,255,255,0.1);color:#e3b341">D:\WORK\Docker_Images\</code></p>
+  <div class="paths-row">
+    <div class="path-pill">
+      <div class="dot"></div>
+      <div>
+        <div class="label">Programs installed to</div>
+        <div class="val">D:\ProgramFiles\</div>
+      </div>
+    </div>
+    <div class="path-pill">
+      <div class="dot"></div>
+      <div>
+        <div class="label">Docker images &amp; data</div>
+        <div class="val">D:\WORK\Docker_Images\</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc-wrap">
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-title">Table of Contents</div>
+    <a href="#phase-prereq"><span class="toc-num">00</span> Prerequisites &amp; BIOS Check</a>
+    <a href="#phase-wsl"><span class="toc-num">01</span> Enable WSL2 &amp; Hyper-V</a>
+    <a href="#phase-wsl-install"><span class="toc-num">02</span> Install WSL2 to D Drive</a>
+    <a href="#phase-docker"><span class="toc-num">03</span> Install Docker Desktop to D Drive</a>
+    <a href="#phase-move"><span class="toc-num">04</span> Move Docker Data to D Drive</a>
+    <a href="#phase-config"><span class="toc-num">05</span> Configure Docker Engine</a>
+    <a href="#phase-verify"><span class="toc-num">06</span> Verify Installation</a>
+    <a href="#phase-summary"><span class="toc-num">07</span> Path Summary</a>
+  </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+
+  <!-- ─────────────────────────── PHASE 0: PREREQUISITES ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-prereq">
+    <div class="phase-icon blue">🖥️</div>
+    <div>
+      <div class="phase-num">PHASE 00</div>
+      <div class="phase-label">Prerequisites &amp; BIOS Virtualization</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">01</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Check Windows Version &amp; System Requirements</div>
+        <div class="step-desc">Docker Desktop requires Windows 10 64-bit (Build 19041+) or Windows 11. Run the following in PowerShell to verify.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Check Windows version (must be 19041+ for Win10 or any Win11)</span>
+<span class="kw">winver</span>
+
+<span class="cmt"># Or check via command</span>
+<span class="kw">Get-ComputerInfo</span> <span class="flag">-Property</span> OsName, OsVersion, OsBuildNumber</pre>
+        </div>
+        <div class="box info">
+          <div class="box-icon">ℹ️</div>
+          <div><strong>Minimum Requirements</strong>Windows 10 Build 19041 (20H1) or Windows 11 · 64-bit processor with SLAT · 4 GB RAM minimum (8 GB+ recommended) · BIOS-level hardware virtualization enabled</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">02</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Enable Virtualization in BIOS/UEFI</div>
+        <div class="step-desc">Virtualization must be enabled at the BIOS level before WSL2 or Docker will work. This step is done before booting Windows.</div>
+      </div>
+      <div class="step-inner">
+        <ol class="sub-steps">
+          <li>Restart your PC and press the BIOS key during POST — usually <code>DEL</code>, <code>F2</code>, <code>F10</code>, or <code>F12</code> depending on your motherboard brand (shown briefly on screen).</li>
+          <li>Navigate to <strong>Advanced</strong> → <strong>CPU Configuration</strong> (Intel) or <strong>Advanced</strong> → <strong>SVM Mode</strong> (AMD).</li>
+          <li><strong>Intel CPUs:</strong> Enable <code>Intel Virtualization Technology (VT-x)</code> and <code>Intel VT-d</code>.</li>
+          <li><strong>AMD CPUs:</strong> Enable <code>AMD-V (SVM)</code>.</li>
+          <li>Save and Exit BIOS. Your PC will reboot normally.</li>
+          <li>Verify in Windows — open Task Manager → Performance → CPU → confirm <strong>Virtualization: Enabled</strong></li>
+        </ol>
+        <div class="box warn">
+          <div class="box-icon">⚠️</div>
+          <div><strong>New PC heads-up</strong>Most new builds have virtualization OFF by default. If you skip this step, WSL2 and Docker will fail to start with a cryptic error.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">03</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Create Required Directories on D Drive</div>
+        <div class="step-desc">Create all target folders before installing anything so paths are ready.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Create all required directories on D drive</span>
+<span class="kw">New-Item</span> <span class="flag">-ItemType Directory</span> <span class="flag">-Force</span> <span class="flag">-Path</span> <span class="str">"D:\ProgramFiles"</span>
+<span class="kw">New-Item</span> <span class="flag">-ItemType Directory</span> <span class="flag">-Force</span> <span class="flag">-Path</span> <span class="str">"D:\ProgramFiles\Docker"</span>
+<span class="kw">New-Item</span> <span class="flag">-ItemType Directory</span> <span class="flag">-Force</span> <span class="flag">-Path</span> <span class="str">"D:\ProgramFiles\WSL"</span>
+<span class="kw">New-Item</span> <span class="flag">-ItemType Directory</span> <span class="flag">-Force</span> <span class="flag">-Path</span> <span class="str">"D:\WORK\Docker_Images"</span>
+<span class="kw">New-Item</span> <span class="flag">-ItemType Directory</span> <span class="flag">-Force</span> <span class="flag">-Path</span> <span class="str">"D:\WORK\Docker_Images\wsl"</span>
+
+<span class="cmt"># Verify they exist</span>
+<span class="kw">Get-ChildItem</span> D:\ <span class="flag">-Directory</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 1: WSL2 FEATURES ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-wsl">
+    <div class="phase-icon orange">⚙️</div>
+    <div>
+      <div class="phase-num">PHASE 01</div>
+      <div class="phase-label">Enable WSL2 &amp; Hyper-V Windows Features</div>
+    </div>
+  </div>
+
+  <div class="box warn" style="margin-bottom:16px;">
+    <div class="box-icon">⚠️</div>
+    <div><strong>Why WSL2?</strong> Docker Desktop on Windows uses WSL2 (Windows Subsystem for Linux 2) as its backend engine. This gives much better performance than the older Hyper-V backend and is required by default in recent Docker Desktop versions.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">04</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Enable Required Windows Features</div>
+        <div class="step-desc">Enable WSL, Virtual Machine Platform, and Hyper-V via PowerShell. A restart is required after this step.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Enable Windows Subsystem for Linux</span>
+<span class="kw">dism.exe</span> /online /enable-feature /featurename:<span class="str">Microsoft-Windows-Subsystem-Linux</span> /all /norestart
+
+<span class="cmt"># Enable Virtual Machine Platform (required for WSL2)</span>
+<span class="kw">dism.exe</span> /online /enable-feature /featurename:<span class="str">VirtualMachinePlatform</span> /all /norestart
+
+<span class="cmt"># Enable Hyper-V (optional but recommended)</span>
+<span class="kw">dism.exe</span> /online /enable-feature /featurename:<span class="str">Microsoft-Hyper-V-All</span> /all /norestart
+
+<span class="cmt"># RESTART your PC before proceeding!</span>
+<span class="kw">Restart-Computer</span></pre>
+        </div>
+        <div class="box danger">
+          <div class="box-icon">🔴</div>
+          <div><strong>You MUST restart here</strong> before continuing. The WSL kernel won't be available until after reboot.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 2: WSL2 TO D DRIVE ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-wsl-install">
+    <div class="phase-icon teal">🐧</div>
+    <div>
+      <div class="phase-num">PHASE 02</div>
+      <div class="phase-label">Install &amp; Configure WSL2 on D Drive</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">05</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Set WSL Default Version to 2</div>
+        <div class="step-desc">After reboot, open PowerShell as Administrator and set WSL2 as default.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Set WSL2 as default version</span>
+<span class="kw">wsl</span> <span class="flag">--set-default-version</span> 2
+
+<span class="cmt"># Update WSL to latest version</span>
+<span class="kw">wsl</span> <span class="flag">--update</span>
+
+<span class="cmt"># Confirm version</span>
+<span class="kw">wsl</span> <span class="flag">--version</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">06</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Configure WSL Global Config to Use D Drive</div>
+        <div class="step-desc">Edit the global WSL config file to set the default install location to D drive before installing any Linux distro.</div>
+      </div>
+      <div class="step-inner">
+        <div class="box info">
+          <div class="box-icon">ℹ️</div>
+          <div>The file <code>.wslconfig</code> lives in your user home at <code>C:\Users\YourName\.wslconfig</code> — this is a WSL config file, not an application. It only controls WSL's behavior, not its install location. We will point the actual distro VHD files to D drive in the next step.</div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell — create .wslconfig</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Create or overwrite .wslconfig in your user home</span>
+<span class="kw">$config</span> = <span class="str">@"
+[wsl2]
+memory=4GB
+processors=2
+swap=2GB
+"@</span>
+
+<span class="kw">Set-Content</span> <span class="flag">-Path</span> <span class="str">"$env:USERPROFILE\.wslconfig"</span> <span class="flag">-Value</span> <span class="kw">$config</span>
+<span class="kw">Write-Host</span> <span class="str">"WSL config written to $env:USERPROFILE\.wslconfig"</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">07</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Install Ubuntu (WSL2 Distro) Directly to D Drive</div>
+        <div class="step-desc">Docker Desktop needs a Linux distro. We install Ubuntu using WSL's <code>--install</code> with a custom location so the VHD lives on D drive.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Download Ubuntu WSL2 distro package</span>
+<span class="kw">Invoke-WebRequest</span> <span class="flag">-Uri</span> <span class="str">"https://aka.ms/wslubuntu2204"</span> <span class="flag">-OutFile</span> <span class="str">"D:\ProgramFiles\WSL\Ubuntu2204.appx"</span> <span class="flag">-UseBasicParsing</span>
+
+<span class="cmt"># Rename to zip and extract</span>
+<span class="kw">Copy-Item</span> <span class="str">"D:\ProgramFiles\WSL\Ubuntu2204.appx"</span> <span class="str">"D:\ProgramFiles\WSL\Ubuntu2204.zip"</span>
+<span class="kw">Expand-Archive</span> <span class="str">"D:\ProgramFiles\WSL\Ubuntu2204.zip"</span> <span class="str">"D:\ProgramFiles\WSL\Ubuntu2204"</span> <span class="flag">-Force</span>
+
+<span class="cmt"># Import as WSL2 distro directly into D drive</span>
+<span class="kw">wsl</span> <span class="flag">--import</span> Ubuntu-22.04 <span class="path">"D:\ProgramFiles\WSL\Ubuntu2204-Data"</span> <span class="str">"D:\ProgramFiles\WSL\Ubuntu2204\install.tar.gz"</span> <span class="flag">--version</span> 2
+
+<span class="cmt"># Verify it's registered and on WSL2</span>
+<span class="kw">wsl</span> <span class="flag">--list</span> <span class="flag">--verbose</span></pre>
+        </div>
+        <div class="box success">
+          <div class="box-icon">✅</div>
+          <div>The Ubuntu VHD (<code>ext4.vhdx</code>) will be stored at <code>D:\ProgramFiles\WSL\Ubuntu2204-Data\</code> — not on C drive.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 3: DOCKER INSTALL ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-docker">
+    <div class="phase-icon green">🐳</div>
+    <div>
+      <div class="phase-num">PHASE 03</div>
+      <div class="phase-label">Install Docker Desktop to D:\ProgramFiles\Docker</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">08</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Download Docker Desktop Installer</div>
+        <div class="step-desc">Download the official Docker Desktop installer directly to D drive.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Download Docker Desktop installer to D drive</span>
+<span class="kw">Invoke-WebRequest</span> <span class="flag">-Uri</span> <span class="str">"https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe"</span> `
+  <span class="flag">-OutFile</span> <span class="str">"D:\ProgramFiles\Docker\DockerDesktopInstaller.exe"</span> `
+  <span class="flag">-UseBasicParsing</span>
+
+<span class="kw">Write-Host</span> <span class="str">"Download complete: D:\ProgramFiles\Docker\DockerDesktopInstaller.exe"</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">09</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Install Docker Desktop with Custom Path Flags</div>
+        <div class="step-desc">Run the installer in silent mode with command-line flags to set the installation directory to D:\ProgramFiles\Docker. This prevents any files going to C:\Program Files.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Install Docker Desktop silently to D:\ProgramFiles\Docker</span>
+<span class="kw">Start-Process</span> <span class="str">"D:\ProgramFiles\Docker\DockerDesktopInstaller.exe"</span> <span class="flag">-ArgumentList</span> `
+  <span class="str">"install",
+  "--quiet",
+  "--accept-license",
+  "--installation-dir=D:\ProgramFiles\Docker\App",
+  "--wsl-default-data-root=D:\WORK\Docker_Images\wsl",
+  "--backend=wsl-2",
+  "--no-windows-containers"</span> `
+  <span class="flag">-Wait</span> <span class="flag">-NoNewWindow</span>
+
+<span class="kw">Write-Host</span> <span class="str">"Docker Desktop installation complete."</span></pre>
+        </div>
+        <div class="box info">
+          <div class="box-icon">ℹ️</div>
+          <div><strong>Flag breakdown:</strong>
+            <br>• <code>--installation-dir</code> → Where Docker Desktop's app files go
+            <br>• <code>--wsl-default-data-root</code> → Where Docker's WSL2 virtual disks go (images, containers)
+            <br>• <code>--backend=wsl-2</code> → Forces WSL2 engine (not Hyper-V)
+            <br>• <code>--quiet</code> → Silent install, no UI wizard</div>
+        </div>
+        <div class="box warn">
+          <div class="box-icon">⚠️</div>
+          <div><strong>Note:</strong> Docker Desktop still writes a small shortcut and registry entry to Windows default locations, but all actual application data and images will be on D drive. This is expected behavior for Windows applications.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">10</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Set Docker Desktop Environment Variable</div>
+        <div class="step-desc">Set the <code>DOCKER_DATA_ROOT</code> and <code>DOCKER_CONFIG</code> system environment variables so Docker CLI always points to D drive.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Set system-wide environment variables for Docker</span>
+[<span class="kw">System.Environment</span>]::SetEnvironmentVariable(
+  <span class="str">"DOCKER_DATA_ROOT"</span>,
+  <span class="str">"D:\WORK\Docker_Images"</span>,
+  <span class="str">"Machine"</span>
+)
+
+[<span class="kw">System.Environment</span>]::SetEnvironmentVariable(
+  <span class="str">"DOCKER_CONFIG"</span>,
+  <span class="str">"D:\ProgramFiles\Docker\config"</span>,
+  <span class="str">"Machine"</span>
+)
+
+<span class="cmt"># Verify</span>
+<span class="kw">Write-Host</span> <span class="str">"DOCKER_DATA_ROOT = $([System.Environment]::GetEnvironmentVariable('DOCKER_DATA_ROOT','Machine'))"</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 4: MOVE DOCKER DATA ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-move">
+    <div class="phase-icon purple">📦</div>
+    <div>
+      <div class="phase-num">PHASE 04</div>
+      <div class="phase-label">Move Docker WSL2 Disk Images to D:\WORK\Docker_Images</div>
+    </div>
+  </div>
+
+  <div class="box info" style="margin-bottom:16px;">
+    <div class="box-icon">ℹ️</div>
+    <div><strong>Why this phase?</strong> Docker Desktop creates two internal WSL2 distros: <code>docker-desktop</code> and <code>docker-desktop-data</code>. These hold all your pulled images, running containers, and volumes. By default they land in your C: user profile. These steps move them fully to <code>D:\WORK\Docker_Images\wsl\</code></div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">11</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Start Docker Desktop Once to Initialize</div>
+        <div class="step-desc">Docker Desktop must run once to create its internal WSL distros before you can move them.</div>
+      </div>
+      <div class="step-inner">
+        <ol class="sub-steps">
+          <li>Launch Docker Desktop from the Start menu or desktop shortcut.</li>
+          <li>Complete the onboarding (accept terms, skip tutorial).</li>
+          <li>Wait until the whale icon in the taskbar shows <strong>Docker Desktop is running</strong>.</li>
+          <li>Then completely close Docker Desktop — right-click the whale icon → <strong>Quit Docker Desktop</strong>.</li>
+        </ol>
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell — shut down WSL after quitting Docker Desktop</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Shut down all WSL after Docker Desktop is closed</span>
+<span class="kw">wsl</span> <span class="flag">--shutdown</span>
+
+<span class="cmt"># Confirm Docker WSL distros exist</span>
+<span class="kw">wsl</span> <span class="flag">--list</span> <span class="flag">--verbose</span>
+<span class="cmt"># You should see: docker-desktop  and  docker-desktop-data</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">12</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Export and Re-import <code>docker-desktop-data</code> to D Drive</div>
+        <div class="step-desc">This is the critical distro — it holds all your Docker images and container data. Export it, unregister from C drive, import to D drive.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Step 1: Export docker-desktop-data to a tar on D drive</span>
+<span class="kw">wsl</span> <span class="flag">--export</span> docker-desktop-data <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop-data.tar"</span>
+
+<span class="cmt"># Step 2: Unregister the distro from its default C: location</span>
+<span class="kw">wsl</span> <span class="flag">--unregister</span> docker-desktop-data
+
+<span class="cmt"># Step 3: Import the distro into D:\WORK\Docker_Images\wsl\</span>
+<span class="kw">wsl</span> <span class="flag">--import</span> docker-desktop-data `
+  <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop-data"</span> `
+  <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop-data.tar"</span> `
+  <span class="flag">--version</span> 2
+
+<span class="cmt"># Step 4: Verify the new location</span>
+<span class="kw">wsl</span> <span class="flag">--list</span> <span class="flag">--verbose</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">13</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Export and Re-import <code>docker-desktop</code> to D Drive</div>
+        <div class="step-desc">The <code>docker-desktop</code> distro holds Docker's engine binaries. Move it to D drive as well.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell (Run as Administrator)</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Step 1: Export docker-desktop distro</span>
+<span class="kw">wsl</span> <span class="flag">--export</span> docker-desktop <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop.tar"</span>
+
+<span class="cmt"># Step 2: Unregister from C: drive</span>
+<span class="kw">wsl</span> <span class="flag">--unregister</span> docker-desktop
+
+<span class="cmt"># Step 3: Import into D:\WORK\Docker_Images\wsl\</span>
+<span class="kw">wsl</span> <span class="flag">--import</span> docker-desktop `
+  <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop"</span> `
+  <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop.tar"</span> `
+  <span class="flag">--version</span> 2
+
+<span class="cmt"># Step 4: Clean up the tar files (optional, saves space)</span>
+<span class="kw">Remove-Item</span> <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop.tar"</span>
+<span class="kw">Remove-Item</span> <span class="str">"D:\WORK\Docker_Images\wsl\docker-desktop-data.tar"</span>
+
+<span class="cmt"># Final check — all distros should show D: paths</span>
+<span class="kw">wsl</span> <span class="flag">--list</span> <span class="flag">--verbose</span></pre>
+        </div>
+        <div class="box success">
+          <div class="box-icon">✅</div>
+          <div>Both Docker WSL2 distros are now stored under <code>D:\WORK\Docker_Images\wsl\</code>. The actual VHD files (<code>ext4.vhdx</code>) inside those folders hold all your images and containers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 5: CONFIGURE ENGINE ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-config">
+    <div class="phase-icon red">🔧</div>
+    <div>
+      <div class="phase-num">PHASE 05</div>
+      <div class="phase-label">Configure Docker Engine &amp; Settings</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">14</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Configure Docker Engine daemon.json</div>
+        <div class="step-desc">Edit the Docker daemon configuration to explicitly set the data root and log location to D drive. This ensures any future images and containers always land on D drive.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell — write daemon.json</span><span class="cmd-tag ps">PS</span></div>
+          <pre><span class="cmt"># Create the Docker config directory on D drive</span>
+<span class="kw">New-Item</span> <span class="flag">-ItemType Directory</span> <span class="flag">-Force</span> <span class="flag">-Path</span> <span class="str">"D:\ProgramFiles\Docker\config"</span>
+
+<span class="cmt"># Write daemon.json with D drive data root</span>
+<span class="kw">$daemonJson</span> = <span class="str">@"
+{
+  "data-root": "D:\\WORK\\Docker_Images",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "3"
+  },
+  "storage-driver": "overlay2",
+  "features": {
+    "buildkit": true
+  }
+}
+"@</span>
+
+<span class="kw">Set-Content</span> <span class="flag">-Path</span> <span class="str">"D:\ProgramFiles\Docker\config\daemon.json"</span> <span class="flag">-Value</span> <span class="kw">$daemonJson</span>
+<span class="kw">Write-Host</span> <span class="str">"daemon.json written successfully"</span></pre>
+        </div>
+        <div class="box warn">
+          <div class="box-icon">⚠️</div>
+          <div><strong>After writing daemon.json</strong> — Open Docker Desktop → Settings → Docker Engine → paste and merge this JSON into the editor there as well, then click <strong>Apply &amp; Restart</strong>. Docker Desktop's UI editor is the authoritative source.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">15</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Configure Docker Desktop UI Settings</div>
+        <div class="step-desc">Open Docker Desktop and configure settings via the graphical interface to ensure the WSL integration and disk path are correctly set.</div>
+      </div>
+      <div class="step-inner">
+        <ol class="sub-steps">
+          <li>Launch Docker Desktop. Go to ⚙️ <strong>Settings</strong> (top right gear icon).</li>
+          <li><strong>General tab:</strong> Ensure <em>"Use the WSL 2 based engine"</em> is checked.</li>
+          <li><strong>Resources → Advanced:</strong> Set <em>Disk image location</em> to <code>D:\WORK\Docker_Images\wsl\docker-desktop-data</code></li>
+          <li><strong>Resources → WSL Integration:</strong> Enable integration for your <code>Ubuntu-22.04</code> distro.</li>
+          <li><strong>Docker Engine tab:</strong> Paste and save the <code>daemon.json</code> from Step 14.</li>
+          <li>Click <strong>Apply &amp; Restart</strong> and wait for Docker to fully restart.</li>
+        </ol>
+        <div class="box info">
+          <div class="box-icon">ℹ️</div>
+          <div>The <strong>Disk image location</strong> field in Docker Desktop UI controls where the WSL virtual disk lives. Changing it here is equivalent to the import you did in Steps 12–13.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 6: VERIFY ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-verify">
+    <div class="phase-icon green">✅</div>
+    <div>
+      <div class="phase-num">PHASE 06</div>
+      <div class="phase-label">Verify Everything Is Working</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">16</div>
+    <div class="step-body">
+      <div class="step-header">
+        <div class="step-title">Run Verification Commands</div>
+        <div class="step-desc">Confirm Docker is healthy, images go to D drive, and no Docker data lives on C drive.</div>
+      </div>
+      <div class="step-inner">
+        <div class="cmd-block">
+          <div class="cmd-bar"><span class="cmd-label">PowerShell or Command Prompt</span><span class="cmd-tag cmd">CMD</span></div>
+          <pre><span class="cmt"># 1. Check Docker version</span>
+<span class="kw">docker</span> <span class="flag">--version</span>
+<span class="kw">docker</span> compose <span class="flag">--version</span>
+
+<span class="cmt"># 2. Check Docker info — look for "Docker Root Dir: D:\WORK\Docker_Images"</span>
+<span class="kw">docker</span> info | <span class="kw">findstr</span> <span class="str">"Docker Root Dir"</span>
+
+<span class="cmt"># 3. Pull and run hello-world — confirms Docker engine works</span>
+<span class="kw">docker</span> run hello-world
+
+<span class="cmt"># 4. Verify the image was downloaded to D drive</span>
+<span class="kw">docker</span> image ls
+<span class="kw">Get-ChildItem</span> <span class="str">"D:\WORK\Docker_Images"</span> <span class="flag">-Recurse</span> <span class="flag">-Depth</span> 2
+
+<span class="cmt"># 5. Confirm WSL distros are on D drive</span>
+<span class="kw">wsl</span> <span class="flag">--list</span> <span class="flag">--verbose</span>
+
+<span class="cmt"># 6. Double check no docker data landed on C drive</span>
+<span class="kw">Get-ChildItem</span> <span class="str">"C:\Users\$env:USERNAME\AppData\Local\Docker"</span> <span class="flag">-ErrorAction SilentlyContinue</span></pre>
+        </div>
+        <div class="box success">
+          <div class="box-icon">✅</div>
+          <div><strong>Expected results:</strong>
+            <br>• <code>Docker Root Dir: D:\WORK\Docker_Images</code> in docker info
+            <br>• <code>hello-world</code> image pulls and runs successfully
+            <br>• WSL distros list shows <code>docker-desktop</code> and <code>docker-desktop-data</code> both at D: paths
+            <br>• <code>C:\Users\...\AppData\Local\Docker\wsl\</code> should be empty or not exist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── PHASE 7: SUMMARY TABLE ─────────────────────────── -->
+  <div class="phase section-anchor" id="phase-summary">
+    <div class="phase-icon blue">📋</div>
+    <div>
+      <div class="phase-num">PHASE 07</div>
+      <div class="phase-label">Complete Path Summary</div>
+    </div>
+  </div>
+
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px;">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>D Drive Path</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Docker Desktop App</td>
+          <td><code>D:\ProgramFiles\Docker\App</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Docker CLI Config</td>
+          <td><code>D:\ProgramFiles\Docker\config</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Docker Data Root (images/containers)</td>
+          <td><code>D:\WORK\Docker_Images</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>docker-desktop WSL2 distro</td>
+          <td><code>D:\WORK\Docker_Images\wsl\docker-desktop</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>docker-desktop-data WSL2 distro</td>
+          <td><code>D:\WORK\Docker_Images\wsl\docker-desktop-data</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Ubuntu WSL2 Distro (Linux env)</td>
+          <td><code>D:\ProgramFiles\WSL\Ubuntu2204-Data</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Ubuntu WSL2 Installer Files</td>
+          <td><code>D:\ProgramFiles\WSL\</code></td>
+          <td><span class="badge opt">Keep or delete</span></td>
+        </tr>
+        <tr>
+          <td>Docker Desktop Installer .exe</td>
+          <td><code>D:\ProgramFiles\Docker\DockerDesktopInstaller.exe</code></td>
+          <td><span class="badge opt">Can delete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DEPENDENCIES REFERENCE -->
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px;">
+    <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text);">Dependency Reference</div>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Dependency</th>
+          <th>Where it comes from</th>
+          <th>Required?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>WSL (Windows Subsystem for Linux)</td>
+          <td>Built into Windows — enabled via <code>dism</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Virtual Machine Platform</td>
+          <td>Built into Windows — enabled via <code>dism</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Hyper-V</td>
+          <td>Built into Windows — enabled via <code>dism</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>WSL2 Linux kernel update</td>
+          <td>Auto-installed by <code>wsl --update</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Ubuntu 22.04 LTS (WSL2 distro)</td>
+          <td>Downloaded via <code>aka.ms/wslubuntu2204</code></td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Docker Desktop</td>
+          <td>Downloaded from docker.com</td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+        <tr>
+          <td>BIOS Virtualization (VT-x / AMD-V)</td>
+          <td>Enabled in motherboard BIOS/UEFI</td>
+          <td><span class="badge req">Required</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 24px;">
+    <div style="font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">🛠️ Common Issues &amp; Fixes</div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="box warn">
+        <div class="box-icon">⚠️</div>
+        <div><strong>"WSL2 requires an update to its kernel component"</strong> — Run <code>wsl --update</code> in Administrator PowerShell, then restart.</div>
+      </div>
+      <div class="box warn">
+        <div class="box-icon">⚠️</div>
+        <div><strong>Docker Desktop starts but shows "engine not running"</strong> — Run <code>wsl --list --verbose</code> and confirm both <code>docker-desktop</code> and <code>docker-desktop-data</code> are in <em>Stopped</em> state (not missing). If missing, redo Steps 12–13.</div>
+      </div>
+      <div class="box warn">
+        <div class="box-icon">⚠️</div>
+        <div><strong>Virtualization error in Docker Desktop</strong> — Go to Task Manager → Performance → CPU and verify Virtualization says <em>Enabled</em>. If not, go back to BIOS and enable VT-x/AMD-V.</div>
+      </div>
+      <div class="box warn">
+        <div class="box-icon">⚠️</div>
+        <div><strong>Docker Root Dir still shows C: after config</strong> — Open Docker Desktop → Settings → Docker Engine, paste the daemon.json manually, click Apply &amp; Restart. The UI overrides the file.</div>
+      </div>
+      <div class="box warn">
+        <div class="box-icon">⚠️</div>
+        <div><strong>Hyper-V not available on Windows Home</strong> — Hyper-V is only included in Windows 10/11 Pro, Enterprise, and Education. On Home edition, WSL2 backend works without Hyper-V — skip that <code>dism</code> command.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="guide-footer">
+  <div>Docker Desktop · Windows · D Drive Installation Guide</div>
+  <div>All installations under <code>D:\ProgramFiles\</code> · All images under <code>D:\WORK\Docker_Images\</code></div>
+</div>
+
+</body>
+</html>
