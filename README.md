@@ -188,6 +188,28 @@ wsl --import Ubuntu-22.04 `
 # Verify it is registered on WSL2
 wsl --list --verbose
 ```
+### Step 07 Alternative in case it does not work
+```powershell
+# Step 1: Copy the x64 appx and rename to zip
+Copy-Item "D:\ProgramFiles\WSL\Ubuntu2204\Ubuntu_2204.1.7.0_x64.appx" `
+          "D:\ProgramFiles\WSL\Ubuntu2204\Ubuntu_x64.zip"
+
+# Step 2: Extract it
+Expand-Archive "D:\ProgramFiles\WSL\Ubuntu2204\Ubuntu_x64.zip" `
+               "D:\ProgramFiles\WSL\Ubuntu2204\Ubuntu_x64" -Force
+
+# Step 3: See what's inside
+Get-ChildItem "D:\ProgramFiles\WSL\Ubuntu2204\Ubuntu_x64"
+
+# Step 4: Import using the correct path
+wsl --import Ubuntu-22.04 `
+    "D:\ProgramFiles\WSL\Ubuntu2204-Data" `
+    "D:\ProgramFiles\WSL\Ubuntu2204\Ubuntu_x64\install.tar.gz" `
+    --version 2
+
+# Step 5: Verify
+wsl --list --verbose
+```
 
 Expected output:
 ```
